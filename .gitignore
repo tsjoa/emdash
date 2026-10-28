@@ -1,0 +1,9 @@
+# Temporary / log files
+*.log
+*~
+*.swp
+*.bak
+
+# Python
+__pycache__/
+*.pyc

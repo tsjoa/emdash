@@ -1,0 +1,50 @@
+#!/bin/bash
+# insert-dash - Types an en-dash or em-dash into the currently active window.
+# Usage: insert-dash [en|em]
+
+set -euo pipefail
+
+TYPE="${1:-en}"
+
+if [ "$TYPE" = "em" ]; then
+    CHAR="—"      # U+2014 EM DASH
+    KEYSYM="emdash"
+else
+    CHAR="–"      # U+2013 EN DASH
+    KEYSYM="endash"
+fi
+
+# Detect Wayland vs X11
+SESSION_TYPE="${XDG_SESSION_TYPE:-x11}"
+
+if [ "$SESSION_TYPE" = "wayland" ]; then
+    if command -v wtype >/dev/null 2>&1; then
+        exec wtype "$CHAR"
+    elif command -v ydotool >/dev/null 2>&1; then
+        exec ydotool type "$CHAR"
+    else
+        notify-send -u critical "Insert Dash" "Wayland typing requires 'wtype' or 'ydotool'. Please install wtype." 2>/dev/null || true
+        exit 1
+    fi
+else
+    # X11 Session
+    if ! command -v xdotool >/dev/null 2>&1; then
+        notify-send -u critical "Insert Dash" "xdotool is required. Please install xdotool: sudo apt install xdotool" 2>/dev/null || true
+        exit 1
+    fi
+
+    # Ensure keysym is present in the X11 keyboard map
+    if ! xmodmap -pke 2>/dev/null | grep -wq "$KEYSYM"; then
+        # Pick an unused keycode (prefer high range 200-254)
+        UNUSED_KC=$(xmodmap -pke 2>/dev/null | awk '$1 == "keycode" && $2 >= 200 && $0 ~ / *= *$/ {print $2; exit}')
+        if [ -z "$UNUSED_KC" ]; then
+            UNUSED_KC=$(xmodmap -pke 2>/dev/null | awk '$1 == "keycode" && $0 ~ / *= *$/ {print $2; exit}')
+        fi
+        if [ -n "$UNUSED_KC" ]; then
+            xmodmap -e "keycode $UNUSED_KC = $KEYSYM" 2>/dev/null || true
+        fi
+    fi
+
+    # Type keysym while clearing modifiers (releases held Super/Shift keys for the event)
+    exec xdotool key --clearmodifiers "$KEYSYM"
+fi
