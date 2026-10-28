@@ -70,7 +70,8 @@ When `setup.sh` is executed, the following modifications are applied to the syst
 To set up the shortcuts:
 
 ```bash
-cd /home/michael/github_upload/keyboardshortcuts
+git clone https://github.com/tsjoa/emdash.git
+cd emdash
 ./setup.sh
 ```
 
@@ -92,7 +93,7 @@ Open any application (such as Kate, Konsole, Firefox, or LibreOffice):
 To remove the custom shortcuts and restore all original KDE settings:
 
 ```bash
-cd /home/michael/github_upload/keyboardshortcuts
+cd emdash
 ./uninstall.sh
 ```
 
@@ -100,3 +101,11 @@ What `uninstall.sh` reverts:
 1. Deletes `~/.local/bin/insert-dash` and `~/.local/share/applications/insert-dash.desktop`.
 2. Restores KWin's `view_zoom_out` back to `Meta+-,Meta+-,Zoom Out`.
 3. Rebuilds the KDE sycoca cache (`kbuildsycoca6`) and restarts `plasma-kglobalaccel.service`.
+
+---
+
+## License
+
+This project is licensed under the **GNU General Public License v3.0 or later** ([GPL-3.0-or-later](LICENSE)).
+
+You are free to use, copy, modify, and distribute this software, provided that any derivative works or redistributions remain open under the same GNU GPLv3 license terms.
